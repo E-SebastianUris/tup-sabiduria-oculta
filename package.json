@@ -12,10 +12,12 @@
   },
   "dependencies": {
     "firebase": "^12.15.0",
+    "i18next": "^26.3.6",
     "primeicons": "^7.0.0",
     "primereact": "^10.9.8",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
+    "react-i18next": "^17.0.9",
     "react-router-dom": "^7.18.0"
   },
   "devDependencies": {

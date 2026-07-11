@@ -1,8 +1,12 @@
 import { useEffect, useState } from "react";
 import { ProgressSpinner } from "primereact/progressspinner";
+import { useTranslation } from "react-i18next";
 import categoriesInfo from "../data/categoriesInfo";
+import { getCategoriesStore } from "../services/categoriesStore";
 
 function Jugar() {
+  const { t } = useTranslation();
+
   const [categorias, setCategorias] = useState([]);
   const [loading, setLoading] = useState(true);
   const [busqueda, setBusqueda] = useState("");
@@ -11,56 +15,11 @@ function Jugar() {
   useEffect(() => {
     const cargarCategorias = async () => {
       try {
-        const guardadas =
-          localStorage.getItem("categorias");
-
-        if (guardadas) {
-          setCategorias(JSON.parse(guardadas));
-          setLoading(false);
-          return;
-        }
-
-        const response = await fetch(
-          "https://opentdb.com/api_category.php"
-        );
-
-        const data = await response.json();
-
-        const categoriasConCantidad =
-          await Promise.all(
-            data.trivia_categories.map(
-              async (categoria) => {
-                const countResponse =
-                  await fetch(
-                    `https://opentdb.com/api_count.php?category=${categoria.id}`
-                  );
-
-                const countData =
-                  await countResponse.json();
-
-                return {
-                  ...categoria,
-                  totalPreguntas:
-                    countData
-                      .category_question_count
-                      .total_question_count,
-                };
-              }
-            )
-          );
-
-        setCategorias(categoriasConCantidad);
-
-        localStorage.setItem(
-          "categorias",
-          JSON.stringify(
-            categoriasConCantidad
-          )
-        );
-
-        setLoading(false);
+        const categorias = await getCategoriesStore();
+        setCategorias(categorias);
       } catch (error) {
-        console.error(error);
+        console.error("Error al cargar categorías:", error);
+      } finally {
         setLoading(false);
       }
     };
@@ -68,41 +27,24 @@ function Jugar() {
     cargarCategorias();
   }, []);
 
-  const categoriasFiltradas =
-    categorias.filter((categoria) =>
-      (
-        categoriesInfo[categoria.id]
-          ?.displayName ||
-        categoria.name
-      )
-        .toLowerCase()
-        .includes(
-          busqueda.toLowerCase()
-        )
-    );
+  const categoriasFiltradas = categorias.filter((categoria) =>
+    (categoriesInfo[categoria.id]?.displayName || categoria.name)
+      .toLowerCase()
+      .includes(busqueda.toLowerCase()),
+  );
 
-  const categoriasOrdenadas = [
-    ...categoriasFiltradas,
-  ];
+  const categoriasOrdenadas = [...categoriasFiltradas];
 
   if (orden === "nombre") {
     categoriasOrdenadas.sort((a, b) =>
-      (
-        categoriesInfo[a.id]
-          ?.displayName || a.name
-      ).localeCompare(
-        categoriesInfo[b.id]
-          ?.displayName || b.name
-      )
+      (categoriesInfo[a.id]?.displayName || a.name).localeCompare(
+        categoriesInfo[b.id]?.displayName || b.name,
+      ),
     );
   }
 
   if (orden === "preguntas") {
-    categoriasOrdenadas.sort(
-      (a, b) =>
-        b.totalPreguntas -
-        a.totalPreguntas
-    );
+    categoriasOrdenadas.sort((a, b) => b.totalPreguntas - a.totalPreguntas);
   }
 
   if (loading) {
@@ -117,21 +59,16 @@ function Jugar() {
         }}
       >
         <ProgressSpinner />
-        <p>
-          Cargando categorías...
-        </p>
+        <p>{t("loadingCategories")}</p>
       </div>
     );
   }
 
   return (
     <div>
-      <h1>Sabiduría Oculta</h1>
+      <h1>{t("appName")}</h1>
 
-      <p>
-        Seleccioná una categoría para
-        comenzar tu aventura.
-      </p>
+      <p>{t("selectCategory")}</p>
 
       <div
         className="controls"
@@ -144,82 +81,42 @@ function Jugar() {
       >
         <input
           type="text"
-          placeholder="Buscar categoría..."
+          placeholder={t("searchCategory")}
           value={busqueda}
-          onChange={(e) =>
-            setBusqueda(
-              e.target.value
-            )
-          }
+          onChange={(e) => setBusqueda(e.target.value)}
         />
 
-        <select
-          value={orden}
-          onChange={(e) =>
-            setOrden(
-              e.target.value
-            )
-          }
-        >
-          <option value="nombre">
-            Nombre A-Z
-          </option>
+        <select value={orden} onChange={(e) => setOrden(e.target.value)}>
+          <option value="nombre">{t("sortByName")}</option>
 
-          <option value="preguntas">
-            Más preguntas
-          </option>
+          <option value="preguntas">{t("sortByQuestions")}</option>
         </select>
       </div>
 
       <div className="categories-grid">
-        {categoriasOrdenadas.map(
-          (categoria) => (
-            <div
-              key={categoria.id}
-              className="category-card"
-            >
-              <img
-                src={
-                  categoriesInfo[
-                    categoria.id
-                  ]?.image
-                }
-                alt={
-                  categoriesInfo[
-                    categoria.id
-                  ]?.displayName ||
-                  categoria.name
-                }
-                className="category-image"
-              />
+        {categoriasOrdenadas.map((categoria) => (
+          <div key={categoria.id} className="category-card">
+            <img
+              src={categoriesInfo[categoria.id]?.image}
+              alt={categoriesInfo[categoria.id]?.displayName || categoria.name}
+              className="category-image"
+            />
 
-              <h3>
-                {categoriesInfo[
-                  categoria.id
-                ]?.displayName ||
-                  categoria.name}
-              </h3>
+            <h3>
+              {categoriesInfo[categoria.id]?.displayName || categoria.name}
+            </h3>
 
-              <p>
-                {categoriesInfo[
-                  categoria.id
-                ]?.description ||
-                  "Descripción no disponible"}
-              </p>
+            <p>
+              {categoriesInfo[categoria.id]?.description || t("noDescription")}
+            </p>
 
-              <p className="question-count">
-                {
-                  categoria.totalPreguntas
-                }{" "}
-                preguntas
-              </p>
+            <p className="question-count">
+              {categoria.totalPreguntas} {t("questions")}
+            </p>
 
-              <button className="play-btn">
-                Jugar
-              </button>
-            </div>
-          )
-        )}
+            <button className="play-btn">{t("play")}</button>
+          </div>
+        ))}
       </div>
     </div>
   );

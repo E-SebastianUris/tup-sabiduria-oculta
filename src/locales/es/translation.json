@@ -1,0 +1,20 @@
+{
+  "appName": "Sabiduría Oculta",
+  "play": "Jugar",
+  "settings": "Configuración",
+  "login": "Iniciar sesión con Google",
+  "logout": "Cerrar sesión",
+  "welcome": "Bienvenido a Sabiduría Oculta",
+  "appInfo": "Información de la App",
+  "version": "Versión",
+  "application": "Aplicación",
+  "userAgent": "User Agent",
+  "selectCategory": "Seleccioná una categoría para comenzar tu aventura.",
+  "searchCategory": "Buscar categoría...",
+  "sortByName": "Nombre A-Z",
+  "sortByQuestions": "Más preguntas",
+  "loadingCategories": "Cargando categorías...",
+  "questions": "preguntas",
+  "noDescription": "Descripción no disponible",
+  "language": "Idioma"
+}
