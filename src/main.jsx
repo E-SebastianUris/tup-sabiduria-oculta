@@ -6,6 +6,16 @@ import App from "./App";
 import "primereact/resources/themes/lara-light-blue/theme.css";
 import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
+import ReactGA from "react-ga4";
+import * as Sentry from "@sentry/react";
+
+ReactGA.initialize("G-03YHGYYXEL");
+
+Sentry.init({
+  dsn: "https://664075e5a2cf584cd7c109287a91921a@o4511718208569344.ingest.us.sentry.io/4511718222069760",
+  dataCollection: {
+  }
+});
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>

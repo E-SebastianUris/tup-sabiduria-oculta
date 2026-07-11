@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ProgressSpinner } from "primereact/progressspinner";
 import categoriesInfo from "../data/categoriesInfo";
+import ReactGA from "react-ga4";
 
 function Jugar() {
   const [categorias, setCategorias] = useState([]);
@@ -50,6 +51,7 @@ function Jugar() {
           );
 
         setCategorias(categoriasConCantidad);
+        ReactGA.event("feature_open", { feature: "Jugar" });
 
         localStorage.setItem(
           "categorias",
@@ -214,7 +216,13 @@ function Jugar() {
                 preguntas
               </p>
 
-              <button className="play-btn">
+              <button className="play-btn"
+                onClick={() => {
+                  ReactGA.event("section_click", {
+                    section: categoriesInfo[categoria.id]?.displayName || categoria.name,
+                  });
+                }}
+              >
                 Jugar
               </button>
             </div>

@@ -6,26 +6,34 @@ import { ProgressSpinner } from "primereact/progressspinner";
 
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
+import ReactGA from "react-ga4";
+import * as Sentry from "@sentry/react";
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+const handleLogin = async () => {
+  try {
+    setLoading(true);
+    const result = await signInWithPopup(auth, googleProvider);
+    ReactGA.event("login", { user_email: result.user.email });
+    
     try {
-      setLoading(true);
-
-      await signInWithPopup(
-        auth,
-        googleProvider
-      );
-
-      navigate("/");
-    } catch (error) {
-      console.error(error);
-      setLoading(false);
+      throw new Error("Error forzado después del login");
+    } catch (err) {
+      console.log("Forzando error con email:", result.user.email);
+      Sentry.captureException(err, {
+        extra: { user_email: result.user.email },
+      });
     }
-  };
+
+    navigate("/");
+  } catch (error) {
+    console.error(error);
+    setLoading(false);
+  }
+};
 
   return (
     <div
