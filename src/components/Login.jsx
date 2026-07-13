@@ -43,14 +43,16 @@ export default function Login() {
             marginBottom: "1.5rem",
           }}
         >
-          /logo.png style=
-          {{
-            width: "100px",
-            height: "100px",
-            objectFit: "contain",
-            marginBottom: "10px",
-          }}
-          /
+          <img
+            src="/logo.png"
+            alt={t("appName")}
+            style={{
+              width: "150px",
+              objectFit: "contain",
+              marginBottom: "10px",
+            }}
+          />
+
           <h2
             style={{
               color: "#3b82f6",

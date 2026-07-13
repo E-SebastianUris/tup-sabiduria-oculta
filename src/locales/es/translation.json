@@ -16,5 +16,9 @@
   "loadingCategories": "Cargando categorías...",
   "questions": "preguntas",
   "noDescription": "Descripción no disponible",
-  "language": "Idioma"
+  "language": "Idioma",
+  "logoutConfirmation": "Confirmación",
+  "logoutMessage": "¿Seguro que deseas cerrar sesión?",
+  "yes": "Sí",
+  "no": "No"
 }

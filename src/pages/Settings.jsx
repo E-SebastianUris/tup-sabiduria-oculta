@@ -23,18 +23,11 @@ export default function Settings() {
 
   const handleLogout = () => {
     confirmDialog({
-      message:
-        i18n.language === "es"
-          ? "¿Seguro que deseas cerrar sesión?"
-          : "Are you sure you want to sign out?",
-
-      header: i18n.language === "es" ? "Confirmación" : "Confirmation",
-
+      message: t("logoutMessage"),
+      header: t("logoutConfirmation"),
       icon: "pi pi-exclamation-triangle",
-
-      acceptLabel: i18n.language === "es" ? "Sí" : "Yes",
-
-      rejectLabel: i18n.language === "es" ? "No" : "No",
+      acceptLabel: t("yes"),
+      rejectLabel: t("no"),
 
       accept: async () => {
         try {

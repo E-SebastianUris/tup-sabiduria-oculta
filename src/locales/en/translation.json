@@ -16,5 +16,9 @@
   "loadingCategories": "Loading categories...",
   "questions": "questions",
   "noDescription": "Description not available",
-  "language": "Language"
+  "language": "Language",
+  "logoutConfirmation": "Confirmation",
+  "logoutMessage": "Are you sure you want to sign out?",
+  "yes": "Yes",
+  "no": "No"
 }
