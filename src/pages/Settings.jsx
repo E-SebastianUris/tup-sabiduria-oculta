@@ -3,34 +3,35 @@ import { Card } from "primereact/card";
 import { Button } from "primereact/button";
 import { Divider } from "primereact/divider";
 import { Avatar } from "primereact/avatar";
-import {
-  ConfirmDialog,
-  confirmDialog,
-} from "primereact/confirmdialog";
+import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
+
+import { useTranslation } from "react-i18next";
 
 export default function Settings() {
   const navigate = useNavigate();
   const userAgent = navigator.userAgent;
   const user = auth.currentUser;
 
+  const { t, i18n } = useTranslation();
+
+  const cambiarIdioma = (idioma) => {
+    i18n.changeLanguage(idioma);
+  };
+
   const handleLogout = () => {
     confirmDialog({
-      message: "¿Seguro que deseas cerrar sesión?",
-      header: "Confirmación",
+      message: t("logoutMessage"),
+      header: t("logoutConfirmation"),
       icon: "pi pi-exclamation-triangle",
-
-      acceptLabel: "Sí",
-      rejectLabel: "No",
+      acceptLabel: t("yes"),
+      rejectLabel: t("no"),
 
       accept: async () => {
         try {
-          console.log("Cerrando sesión...");
           await signOut(auth);
-          console.log("Sesión cerrada");
-
           navigate("/login");
         } catch (error) {
           console.error("Error al cerrar sesión:", error);
@@ -51,15 +52,14 @@ export default function Settings() {
       }}
     >
       <Card
-        title="Configuración"
+        title={t("settings")}
         style={{
           width: "30rem",
           margin: "auto",
         }}
       >
         <div className="p-fluid">
-
-          {/* Perfil del usuario */}
+          {/* Perfil */}
           <div
             style={{
               marginBottom: "1rem",
@@ -80,28 +80,53 @@ export default function Settings() {
 
           <Divider />
 
-          {/* Información de la aplicación */}
+          {/* Idioma */}
           <div style={{ marginBottom: "1rem" }}>
-            <h3>Información de la App</h3>
+            <h3>{t("language")}</h3>
+
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+              }}
+            >
+              <Button
+                label="ES"
+                outlined={i18n.language !== "es"}
+                onClick={() => cambiarIdioma("es")}
+              />
+
+              <Button
+                label="EN"
+                outlined={i18n.language !== "en"}
+                onClick={() => cambiarIdioma("en")}
+              />
+            </div>
+          </div>
+
+          <Divider />
+
+          {/* Información */}
+          <div style={{ marginBottom: "1rem" }}>
+            <h3>{t("appInfo")}</h3>
 
             <p>
-              <strong>Aplicación:</strong> Sabiduría Oculta
+              <strong>{t("application")}:</strong> {t("appName")}
             </p>
 
             <p>
-              <strong>Versión:</strong> TP 4
+              <strong>{t("version")}:</strong> TP 6
             </p>
 
             <p>
-              <strong>User Agent:</strong> {userAgent}
+              <strong>{t("userAgent")}:</strong> {userAgent}
             </p>
           </div>
 
           <Divider />
 
-          {/* Botón de cerrar sesión */}
           <Button
-            label="Cerrar sesión"
+            label={t("logout")}
             icon="pi pi-sign-out"
             severity="danger"
             onClick={handleLogout}
