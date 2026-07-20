@@ -27,11 +27,20 @@ function Jugar() {
     cargarCategorias();
   }, []);
 
-  const categoriasFiltradas = categorias.filter((categoria) =>
-    (categoriesInfo[categoria.id]?.displayName || categoria.name)
-      .toLowerCase()
-      .includes(busqueda.toLowerCase()),
-  );
+const listaCategorias = Array.isArray(categorias?.categories)
+  ? categorias.categories
+  : Array.isArray(categorias)
+  ? categorias
+  : [];
+
+const categoriasFiltradas = listaCategorias.filter((categoria) =>
+  (
+    categoriesInfo[categoria.id]?.displayName ||
+    categoria.name
+  )
+    .toLowerCase()
+    .includes(busqueda.toLowerCase())
+);
 
   const categoriasOrdenadas = [...categoriasFiltradas];
 
