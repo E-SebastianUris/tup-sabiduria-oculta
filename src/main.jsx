@@ -8,7 +8,7 @@ import "primereact/resources/primereact.min.css";
 import "primeicons/primeicons.css";
 import ReactGA from "react-ga4";
 import * as Sentry from "@sentry/react";
-
+import { registerSW } from 'virtual:pwa-register'
 ReactGA.initialize("G-03YHGYYXEL");
 
 Sentry.init({
@@ -16,6 +16,15 @@ Sentry.init({
   dataCollection: {
   }
 });
+
+const updateSW = registerSW({
+  onNeedRefresh() {
+    console.log('Nueva versión disponible, refrescar la página')
+  },
+  onOfflineReady() {
+    console.log('La app está lista para usarse offline')
+  },
+})
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
