@@ -3,20 +3,22 @@ import { ProgressSpinner } from "primereact/progressspinner";
 import categoriesInfo from "../data/categoriesInfo";
 import ReactGA from "react-ga4";
 
-function Jugar() {
-  const [categorias, setCategorias] = useState([]);
+function Play() {
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [busqueda, setBusqueda] = useState("");
-  const [orden, setOrden] = useState("nombre");
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState("name");
 
   useEffect(() => {
-    const cargarCategorias = async () => {
+    const loadCategories = async () => {
       try {
-        const guardadas =
-          localStorage.getItem("categorias");
+        const savedCategories =
+          localStorage.getItem("categories");
 
-        if (guardadas) {
-          setCategorias(JSON.parse(guardadas));
+        if (savedCategories) {
+          setCategories(
+            JSON.parse(savedCategories)
+          );
           setLoading(false);
           return;
         }
@@ -27,21 +29,21 @@ function Jugar() {
 
         const data = await response.json();
 
-        const categoriasConCantidad =
+        const categoriesWithCount =
           await Promise.all(
             data.trivia_categories.map(
-              async (categoria) => {
+              async (category) => {
                 const countResponse =
                   await fetch(
-                    `https://opentdb.com/api_count.php?category=${categoria.id}`
+                    `https://opentdb.com/api_count.php?category=${category.id}`
                   );
 
                 const countData =
                   await countResponse.json();
 
                 return {
-                  ...categoria,
-                  totalPreguntas:
+                  ...category,
+                  totalQuestions:
                     countData
                       .category_question_count
                       .total_question_count,
@@ -50,13 +52,16 @@ function Jugar() {
             )
           );
 
-        setCategorias(categoriasConCantidad);
-        ReactGA.event("feature_open", { feature: "Jugar" });
+        setCategories(categoriesWithCount);
+
+        ReactGA.event("feature_open", {
+          feature: "Play",
+        });
 
         localStorage.setItem(
-          "categorias",
+          "categories",
           JSON.stringify(
-            categoriasConCantidad
+            categoriesWithCount
           )
         );
 
@@ -67,30 +72,33 @@ function Jugar() {
       }
     };
 
-    cargarCategorias();
+    loadCategories();
   }, []);
 
-const listaCategorias = Array.isArray(categorias?.categories)
-  ? categorias.categories
-  : Array.isArray(categorias)
-  ? categorias
-  : [];
+  const categoriesList =
+    Array.isArray(categories?.categories)
+      ? categories.categories
+      : Array.isArray(categories)
+      ? categories
+      : [];
 
-const categoriasFiltradas = listaCategorias.filter((categoria) =>
-  (
-    categoriesInfo[categoria.id]?.displayName ||
-    categoria.name
-  )
-    .toLowerCase()
-    .includes(busqueda.toLowerCase())
-);
+  const filteredCategories =
+    categoriesList.filter((category) =>
+      (
+        categoriesInfo[category.id]
+          ?.displayName ||
+        category.name
+      )
+        .toLowerCase()
+        .includes(search.toLowerCase())
+    );
 
-  const categoriasOrdenadas = [
-    ...categoriasFiltradas,
+  const sortedCategories = [
+    ...filteredCategories,
   ];
 
-  if (orden === "nombre") {
-    categoriasOrdenadas.sort((a, b) =>
+  if (sortBy === "name") {
+    sortedCategories.sort((a, b) =>
       (
         categoriesInfo[a.id]
           ?.displayName || a.name
@@ -101,11 +109,11 @@ const categoriasFiltradas = listaCategorias.filter((categoria) =>
     );
   }
 
-  if (orden === "preguntas") {
-    categoriasOrdenadas.sort(
+  if (sortBy === "questions") {
+    sortedCategories.sort(
       (a, b) =>
-        b.totalPreguntas -
-        a.totalPreguntas
+        b.totalQuestions -
+        a.totalQuestions
     );
   }
 
@@ -149,80 +157,84 @@ const categoriasFiltradas = listaCategorias.filter((categoria) =>
         <input
           type="text"
           placeholder="Buscar categoría..."
-          value={busqueda}
+          value={search}
           onChange={(e) =>
-            setBusqueda(
-              e.target.value
-            )
+            setSearch(e.target.value)
           }
         />
 
         <select
-          value={orden}
+          value={sortBy}
           onChange={(e) =>
-            setOrden(
-              e.target.value
-            )
+            setSortBy(e.target.value)
           }
         >
-          <option value="nombre">
+          <option value="name">
             Nombre A-Z
           </option>
 
-          <option value="preguntas">
+          <option value="questions">
             Más preguntas
           </option>
         </select>
       </div>
 
       <div className="categories-grid">
-        {categoriasOrdenadas.map(
-          (categoria) => (
+        {sortedCategories.map(
+          (category) => (
             <div
-              key={categoria.id}
+              key={category.id}
               className="category-card"
             >
               <img
                 src={
                   categoriesInfo[
-                    categoria.id
+                    category.id
                   ]?.image
                 }
                 alt={
                   categoriesInfo[
-                    categoria.id
+                    category.id
                   ]?.displayName ||
-                  categoria.name
+                  category.name
                 }
                 className="category-image"
               />
 
               <h3>
                 {categoriesInfo[
-                  categoria.id
+                  category.id
                 ]?.displayName ||
-                  categoria.name}
+                  category.name}
               </h3>
 
               <p>
                 {categoriesInfo[
-                  categoria.id
+                  category.id
                 ]?.description ||
                   "Descripción no disponible"}
               </p>
 
               <p className="question-count">
                 {
-                  categoria.totalPreguntas
+                  category.totalQuestions
                 }{" "}
                 preguntas
               </p>
 
-              <button className="play-btn"
+              <button
+                className="play-btn"
                 onClick={() => {
-                  ReactGA.event("section_click", {
-                    section: categoriesInfo[categoria.id]?.displayName || categoria.name,
-                  });
+                  ReactGA.event(
+                    "section_click",
+                    {
+                      section:
+                        categoriesInfo[
+                          category.id
+                        ]?.displayName ||
+                        category.name,
+                    }
+                  );
                 }}
               >
                 Jugar
@@ -235,4 +247,4 @@ const categoriasFiltradas = listaCategorias.filter((categoria) =>
   );
 }
 
-export default Jugar;
+export default Play;

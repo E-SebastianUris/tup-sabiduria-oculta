@@ -7,7 +7,7 @@ import { auth } from "./firebase";
 import Login from "./components/Login";
 import Layout from "./components/Layout";
 
-import Jugar from "./pages/Jugar";
+import Play from "./pages/Play";
 import Settings from "./pages/Settings";
 
 import "./App.css";
@@ -50,7 +50,7 @@ function App() {
       >
         <Route
           path="/"
-          element={<Jugar />}
+          element={<Play />}
         />
 
         <Route
