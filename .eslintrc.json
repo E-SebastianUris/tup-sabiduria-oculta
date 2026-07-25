@@ -1,0 +1,16 @@
+code .eslintrc.json
+
+{
+  "env": {
+    "node": true,
+    "es2021": true
+  },
+  "overrides": [
+    {
+      "files": ["backend/**/*.js"],
+      "env": {
+        "node": true
+      }
+    }
+  ]
+}
