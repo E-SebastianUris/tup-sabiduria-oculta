@@ -1,3 +1,5 @@
+/* global module */
+
 let categories = [];
 
 async function loadCategories() {
