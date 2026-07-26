@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ProgressSpinner } from "primereact/progressspinner";
 import { useTranslation } from "react-i18next";
 import categoriesInfo from "../data/categoriesInfo";
+import ReactGA from "react-ga4";
 import { getCategoriesStore } from "../services/categoriesStore";
 
 function Jugar() {
@@ -103,29 +104,38 @@ const categoriasFiltradas = listaCategorias.filter((categoria) =>
       </div>
 
       <div className="categories-grid">
-        {categoriasOrdenadas.map((categoria) => (
-          <div key={categoria.id} className="category-card">
-            <img
-              src={categoriesInfo[categoria.id]?.image}
-              alt={categoriesInfo[categoria.id]?.displayName || categoria.name}
-              className="category-image"
-            />
+{categoriasOrdenadas.map((categoria) => (
+  <div key={categoria.id} className="category-card">
+    <img
+      src={categoriesInfo[categoria.id]?.image}
+      alt={categoriesInfo[categoria.id]?.displayName || categoria.name}
+      className="category-image"
+    />
 
-            <h3>
-              {categoriesInfo[categoria.id]?.displayName || categoria.name}
-            </h3>
+    <h3>
+      {categoriesInfo[categoria.id]?.displayName || categoria.name}
+    </h3>
 
-            <p>
-              {categoriesInfo[categoria.id]?.description || t("noDescription")}
-            </p>
+    <p>
+      {categoriesInfo[categoria.id]?.description || t("noDescription")}
+    </p>
 
-            <p className="question-count">
-              {categoria.totalPreguntas} {t("questions")}
-            </p>
+    <p className="question-count">
+      {categoria.totalPreguntas} {t("questions")}
+    </p>
 
-            <button className="play-btn">{t("play")}</button>
-          </div>
-        ))}
+    <button
+      className="play-btn"
+      onClick={() => {
+        ReactGA.event("section_click", {
+          section: categoriesInfo[categoria.id]?.displayName || categoria.name,
+        });
+      }}
+    >
+      {t("play")}
+    </button>
+  </div>
+))}
       </div>
     </div>
   );
