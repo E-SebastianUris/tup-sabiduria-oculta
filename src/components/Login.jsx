@@ -21,7 +21,7 @@ export default function Login() {
   const isTauri = !!window.__TAURI__;
 
   useEffect(() => {
-    // Manejo de redirect en desktop
+    // Manejo de redirect en desktop (Tauri)
     getRedirectResult(auth)
       .then((result) => {
         if (result?.user) {
@@ -65,6 +65,7 @@ export default function Login() {
       }
     } catch (error) {
       console.error("Error en login:", error.code, error.message);
+    } finally {
       setLoading(false);
     }
   };
@@ -92,6 +93,7 @@ export default function Login() {
           />
           <h2 style={{ color: "#3b82f6", margin: 0 }}>{t("appName")}</h2>
         </div>
+
         <div style={{ display: "flex", justifyContent: "center" }}>
           {loading ? (
             <ProgressSpinner style={{ width: "40px", height: "40px" }} />
