@@ -7,7 +7,7 @@ import { auth } from "./firebase";
 import Login from "./components/Login";
 import Layout from "./components/Layout";
 
-import Jugar from "./pages/Jugar";
+import Play from "./pages/Play";
 import Settings from "./pages/Settings";
 
 import "./App.css";
@@ -16,12 +16,9 @@ function App() {
   const [user, setUser] = useState(undefined);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (currentUser) => {
-        setUser(currentUser);
-      }
-    );
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
 
     return () => unsubscribe();
   }, []);
@@ -32,37 +29,15 @@ function App() {
 
   return (
     <Routes>
-      <Route
-        path="/login"
-        element={
-          user ? <Navigate to="/" /> : <Login />
-        }
-      />
+      <Route path="/login" element={user ? <Navigate to="/" /> : <Login />} />
 
-      <Route
-        element={
-          user ? (
-            <Layout />
-          ) : (
-            <Navigate to="/login" />
-          )
-        }
-      >
-        <Route
-          path="/"
-          element={<Jugar />}
-        />
+      <Route element={user ? <Layout /> : <Navigate to="/login" />}>
+        <Route path="/" element={<Play />} />
 
-        <Route
-          path="/settings"
-          element={<Settings />}
-        />
+        <Route path="/settings" element={<Settings />} />
       </Route>
 
-      <Route
-        path="*"
-        element={<Navigate to="/" />}
-      />
+      <Route path="*" element={<Navigate to="/" />} />
     </Routes>
   );
 }
