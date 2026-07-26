@@ -8,9 +8,10 @@ import {
   signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
-  onAuthStateChanged,
 } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
+import ReactGA from "react-ga4";
+import * as Sentry from "@sentry/react";
 
 export default function Login() {
   const [loading, setLoading] = useState(false);
@@ -20,27 +21,18 @@ export default function Login() {
   const isTauri = !!window.__TAURI__;
 
   useEffect(() => {
-    console.log("Location actual:", window.location.href);
+    // Manejo de redirect en desktop
     getRedirectResult(auth)
       .then((result) => {
         if (result?.user) {
           console.log("Usuario logueado por redirect:", result.user.email);
+          ReactGA.event("login", { user_email: result.user.email });
           navigate("/");
-        } else {
-          console.log("No hay usuario en redirect");
         }
       })
       .catch((error) => {
         console.error("Error en redirect:", error.code, error.message);
       });
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        console.log("Usuario logueado por onAuthStateChanged:", user.email);
-        navigate("/");
-      }
-    });
-
-    return () => unsubscribe();
   }, [navigate]);
 
   const handleLogin = async () => {
@@ -48,11 +40,26 @@ export default function Login() {
       setLoading(true);
 
       if (isTauri) {
+        // En desktop usamos redirect
         await signInWithRedirect(auth, googleProvider);
       } else {
+        // En web usamos popup
         const result = await signInWithPopup(auth, googleProvider);
+
         if (result?.user) {
-          console.log("Usuario logueado por popup:", result.user.email);
+          // Evento GA
+          ReactGA.event("login", { user_email: result.user.email });
+
+          // Forzar error y capturarlo en Sentry
+          try {
+            throw new Error("Error forzado después del login");
+          } catch (err) {
+            console.log("Forzando error con email:", result.user.email);
+            Sentry.captureException(err, {
+              extra: { user_email: result.user.email },
+            });
+          }
+
           navigate("/");
         }
       }

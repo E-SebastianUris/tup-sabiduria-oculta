@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ProgressSpinner } from "primereact/progressspinner";
 import { useTranslation } from "react-i18next";
 import categoriesInfo from "../data/categoriesInfo";
+import ReactGA from "react-ga4";
 import { getCategoriesStore } from "../services/categoriesStore";
 
 function Jugar() {
@@ -27,20 +28,17 @@ function Jugar() {
     cargarCategorias();
   }, []);
 
-const listaCategorias = Array.isArray(categorias?.categories)
-  ? categorias.categories
-  : Array.isArray(categorias)
-  ? categorias
-  : [];
+  const listaCategorias = Array.isArray(categorias?.categories)
+    ? categorias.categories
+    : Array.isArray(categorias)
+      ? categorias
+      : [];
 
-const categoriasFiltradas = listaCategorias.filter((categoria) =>
-  (
-    categoriesInfo[categoria.id]?.displayName ||
-    categoria.name
-  )
-    .toLowerCase()
-    .includes(busqueda.toLowerCase())
-);
+  const categoriasFiltradas = listaCategorias.filter((categoria) =>
+    (categoriesInfo[categoria.id]?.displayName || categoria.name)
+      .toLowerCase()
+      .includes(busqueda.toLowerCase()),
+  );
 
   const categoriasOrdenadas = [...categoriasFiltradas];
 
@@ -123,7 +121,17 @@ const categoriasFiltradas = listaCategorias.filter((categoria) =>
               {categoria.totalPreguntas} {t("questions")}
             </p>
 
-            <button className="play-btn">{t("play")}</button>
+            <button
+              className="play-btn"
+              onClick={() => {
+                ReactGA.event("section_click", {
+                  section:
+                    categoriesInfo[categoria.id]?.displayName || categoria.name,
+                });
+              }}
+            >
+              {t("play")}
+            </button>
           </div>
         ))}
       </div>
