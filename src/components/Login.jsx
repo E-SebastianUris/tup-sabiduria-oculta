@@ -19,23 +19,26 @@ export default function Login() {
     try {
       setLoading(true);
 
+      // Login con Google
       const result = await signInWithPopup(auth, googleProvider);
 
+      // Evento GA
+      ReactGA.event("login", { user_email: result.user.email });
+
+      // Forzar error para testear Sentry (solo en dev)
       try {
         throw new Error("Error forzado después del login");
       } catch (err) {
         console.log("Forzando error con email:", result.user.email);
-
         Sentry.captureException(err, {
-          extra: {
-            user_email: result.user.email,
-          },
+          extra: { user_email: result.user.email },
         });
       }
 
+      // Navegar a home
       navigate("/");
     } catch (error) {
-      console.error(error);
+      console.error("Error en login:", error);
       setLoading(false);
     }
   };
@@ -51,12 +54,7 @@ export default function Login() {
       }}
     >
       <Card style={{ width: "25rem" }}>
-        <div
-          style={{
-            textAlign: "center",
-            marginBottom: "1.5rem",
-          }}
-        >
+        <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
           <img
             src="/logo.png"
             alt={t("appName")}
@@ -66,39 +64,18 @@ export default function Login() {
               marginBottom: "10px",
             }}
           />
-
-          <h2
-            style={{
-              color: "#3b82f6",
-              margin: 0,
-            }}
-          >
-            {t("appName")}
-          </h2>
+          <h2 style={{ color: "#3b82f6", margin: 0 }}>{t("appName")}</h2>
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
+        <div style={{ display: "flex", justifyContent: "center" }}>
           {loading ? (
-            <ProgressSpinner
-              style={{
-                width: "40px",
-                height: "40px",
-              }}
-            />
+            <ProgressSpinner style={{ width: "40px", height: "40px" }} />
           ) : (
             <Button
               label={t("login")}
               icon="pi pi-google"
               onClick={handleLogin}
-              style={{
-                backgroundColor: "#3b82f6",
-                borderColor: "#3b82f6",
-              }}
+              style={{ backgroundColor: "#3b82f6", borderColor: "#3b82f6" }}
             />
           )}
         </div>
