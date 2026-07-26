@@ -4,7 +4,6 @@ import { Card } from "primereact/card";
 import { Button } from "primereact/button";
 import { ProgressSpinner } from "primereact/progressspinner";
 import { useTranslation } from "react-i18next";
-
 import { signInWithPopup } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 import ReactGA from "react-ga4";
@@ -15,36 +14,27 @@ export default function Login() {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
-const handleLogin = async () => {
-  try {
-    setLoading(true);
-    const result = await signInWithPopup(auth, googleProvider);
-    ReactGA.event("login", { user_email: result.user.email });
-    
+  const handleLogin = async () => {
     try {
-      throw new Error("Error forzado después del login");
-    } catch (err) {
-      console.log("Forzando error con email:", result.user.email);
-      Sentry.captureException(err, {
-        extra: { user_email: result.user.email },
-      });
       setLoading(true);
+      const result = await signInWithPopup(auth, googleProvider);
 
-      await signInWithPopup(auth, googleProvider);
+      ReactGA.event("login", { user_email: result.user.email });
 
+      try {
+        throw new Error("Error forzado después del login");
+      } catch (err) {
+        console.log("Forzando error con email:", result.user.email);
+        Sentry.captureException(err, {
+          extra: { user_email: result.user.email },
+        });
+      }
       navigate("/");
     } catch (error) {
       console.error(error);
       setLoading(false);
     }
-
-    navigate("/");
-  } catch (error) {
-    console.error(error);
-    setLoading(false);
-  }
-};
-
+  };
   return (
     <div
       style={{
