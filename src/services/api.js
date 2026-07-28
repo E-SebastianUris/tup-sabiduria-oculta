@@ -1,7 +1,8 @@
-const API_URL = "https://opentdb.com";
+const API_URL = "https://tu-url-de-render.onrender.com/api";
+const OPENTDB_URL = "https://opentdb.com";
 
 export async function getCategoriesFromApi() {
-  const response = await fetch(`${API_URL}/api_category.php`);
+  const response = await fetch(`${API_URL}/categories`);
 
   if (!response.ok) {
     throw new Error("No se pudieron obtener las categorías");
@@ -10,9 +11,9 @@ export async function getCategoriesFromApi() {
   const data = await response.json();
 
   const categories = await Promise.all(
-    data.trivia_categories.map(async (categoria) => {
+    data.map(async (categoria) => {
       const countResponse = await fetch(
-        `${API_URL}/api_count.php?category=${categoria.id}`,
+        `${OPENTDB_URL}/api_count.php?category=${categoria.id}`,
       );
 
       if (!countResponse.ok) {
