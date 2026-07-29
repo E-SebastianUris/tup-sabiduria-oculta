@@ -13,7 +13,7 @@
     "start:desktop": "tauri dev",
     "build:desktop": "tauri build",
     "tauri": "tauri",
-    "android": "npm run build && npx cap sync android && npx cap open android"
+    "android": "npx cap add android && npm run build && npx cap sync android && npx cap open android"
   },
   "dependencies": {
     "@capacitor/android": "^8.4.2",
