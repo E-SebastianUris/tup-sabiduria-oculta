@@ -1,11 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "primereact/card";
 import { Button } from "primereact/button";
 import { ProgressSpinner } from "primereact/progressspinner";
 import { useTranslation } from "react-i18next";
-
-import { signInWithPopup } from "firebase/auth";
+import {
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
+} from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 import ReactGA from "react-ga4";
 import * as Sentry from "@sentry/react";
@@ -15,30 +18,54 @@ export default function Login() {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
+  const isTauri = !!window.__TAURI__;
+
+  useEffect(() => {
+    // Manejo de redirect en desktop (Tauri)
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          console.log("Usuario logueado por redirect:", result.user.email);
+          ReactGA.event("login", { user_email: result.user.email });
+          navigate("/");
+        }
+      })
+      .catch((error) => {
+        console.error("Error en redirect:", error.code, error.message);
+      });
+  }, [navigate]);
+
   const handleLogin = async () => {
     try {
       setLoading(true);
 
-      // Login con Google
-      const result = await signInWithPopup(auth, googleProvider);
+      if (isTauri) {
+        // En desktop usamos redirect
+        await signInWithRedirect(auth, googleProvider);
+      } else {
+        // En web usamos popup
+        const result = await signInWithPopup(auth, googleProvider);
 
-      // Evento GA
-      ReactGA.event("login", { user_email: result.user.email });
+        if (result?.user) {
+          // Evento GA
+          ReactGA.event("login", { user_email: result.user.email });
 
-      // Forzar error para testear Sentry (solo en dev)
-      try {
-        throw new Error("Error forzado después del login");
-      } catch (err) {
-        console.log("Forzando error con email:", result.user.email);
-        Sentry.captureException(err, {
-          extra: { user_email: result.user.email },
-        });
+          // Forzar error y capturarlo en Sentry
+          try {
+            throw new Error("Error forzado después del login");
+          } catch (err) {
+            console.log("Forzando error con email:", result.user.email);
+            Sentry.captureException(err, {
+              extra: { user_email: result.user.email },
+            });
+          }
+
+          navigate("/");
+        }
       }
-
-      // Navegar a home
-      navigate("/");
     } catch (error) {
-      console.error("Error en login:", error);
+      console.error("Error en login:", error.code, error.message);
+    } finally {
       setLoading(false);
     }
   };

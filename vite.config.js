@@ -10,33 +10,29 @@ export default defineConfig({
       filename: "stats.html",
       template: "treemap",
       gzipSize: true,
-      brotliSize: true
+      brotliSize: true,
     }),
     VitePWA({
-      registerType: 'autoUpdate',
-      includeAssets: [
-        'favicon.ico',
-        'apple-touch-icon.png',
-        'masked-icon.svg'
-      ],
+      registerType: "autoUpdate",
+      includeAssets: ["favicon.ico", "apple-touch-icon.png", "masked-icon.svg"],
       manifest: {
-        name: 'UTN FRLP',
-        short_name: 'UTN',
-        description: 'Aplicación PWA de UTN',
-        theme_color: '#ffffff',
+        name: "UTN FRLP",
+        short_name: "UTN",
+        description: "Aplicación PWA de UTN",
+        theme_color: "#ffffff",
         icons: [
           {
-            src: 'pwa-192x192.png',
-            sizes: '192x192',
-            type: 'image/png'
+            src: "pwa-192x192.png",
+            sizes: "192x192",
+            type: "image/png",
           },
           {
-            src: 'pwa-512x512.png',
-            sizes: '512x512',
-            type: 'image/png'
-          }
-        ]
-      }
-    })
-  ]
+            src: "pwa-512x512.png",
+            sizes: "512x512",
+            type: "image/png",
+          },
+        ],
+      },
+    }),
+  ],
 });
