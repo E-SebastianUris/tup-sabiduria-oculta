@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card } from "primereact/card";
 import { Button } from "primereact/button";
@@ -7,6 +8,7 @@ import { ConfirmDialog, confirmDialog } from "primereact/confirmdialog";
 
 import { signOut } from "firebase/auth";
 import { auth } from "../firebase";
+import { createCategory } from "../services/api";
 
 import { useTranslation } from "react-i18next";
 
@@ -17,8 +19,20 @@ export default function Settings() {
 
   const { t, i18n } = useTranslation();
 
+  const [testResult, setTestResult] = useState("");
+
   const cambiarIdioma = (idioma) => {
     i18n.changeLanguage(idioma);
+  };
+
+  const handleTestCreateCategory = async () => {
+    try {
+      setTestResult("Enviando...");
+      const result = await createCategory("Categoría de prueba");
+      setTestResult(`Creada: ${JSON.stringify(result)}`);
+    } catch (error) {
+      setTestResult(`Error: ${error.message}`);
+    }
   };
 
   const handleLogout = () => {
@@ -121,6 +135,23 @@ export default function Settings() {
             <p>
               <strong>{t("userAgent")}:</strong> {userAgent}
             </p>
+          </div>
+
+          <Divider />
+
+          {/* TEMPORAL - Prueba TP13: crear categoría con token */}
+          <div style={{ marginBottom: "1rem" }}>
+            <h3>Prueba TP13</h3>
+            <Button
+              label="Crear categoría de prueba"
+              icon="pi pi-plus"
+              onClick={handleTestCreateCategory}
+            />
+            {testResult && (
+              <p style={{ wordBreak: "break-word", marginTop: "0.5rem" }}>
+                {testResult}
+              </p>
+            )}
           </div>
 
           <Divider />

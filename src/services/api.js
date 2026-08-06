@@ -1,7 +1,15 @@
-const API_URL = "https://opentdb.com";
+import { auth } from "../firebase";
+
+const API_URL = "https://tup-sabiduria-oculta-backend.onrender.com/api";
+const OPENTDB_URL = "https://opentdb.com";
+
+async function getAuthHeader() {
+  const token = await auth.currentUser.getIdToken();
+  return { Authorization: `Bearer ${token}` };
+}
 
 export async function getCategoriesFromApi() {
-  const response = await fetch(`${API_URL}/api_category.php`);
+  const response = await fetch(`${API_URL}/categories`);
 
   if (!response.ok) {
     throw new Error("No se pudieron obtener las categorías");
@@ -10,9 +18,9 @@ export async function getCategoriesFromApi() {
   const data = await response.json();
 
   const categories = await Promise.all(
-    data.trivia_categories.map(async (categoria) => {
+    data.map(async (categoria) => {
       const countResponse = await fetch(
-        `${API_URL}/api_count.php?category=${categoria.id}`,
+        `${OPENTDB_URL}/api_count.php?category=${categoria.id}`,
       );
 
       if (!countResponse.ok) {
@@ -29,4 +37,60 @@ export async function getCategoriesFromApi() {
   );
 
   return categories;
+}
+
+export async function createCategory(name) {
+  const authHeader = await getAuthHeader();
+
+  const response = await fetch(`${API_URL}/categories`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeader,
+    },
+    body: JSON.stringify({ id: Date.now(), name }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "No se pudo crear la categoría");
+  }
+
+  return response.json();
+}
+
+export async function updateCategory(id, name) {
+  const authHeader = await getAuthHeader();
+
+  const response = await fetch(`${API_URL}/categories/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      ...authHeader,
+    },
+    body: JSON.stringify({ name }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "No se pudo actualizar la categoría");
+  }
+
+  return response.json();
+}
+
+export async function deleteCategory(id) {
+  const authHeader = await getAuthHeader();
+
+  const response = await fetch(`${API_URL}/categories/${id}`, {
+    method: "DELETE",
+    headers: authHeader,
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "No se pudo eliminar la categoría");
+  }
+
+  return response.json();
 }
