@@ -1,7 +1,6 @@
 import { auth } from "../firebase";
 
 const API_URL = "https://tup-sabiduria-oculta-backend.onrender.com/api";
-const OPENTDB_URL = "https://opentdb.com";
 
 async function getAuthHeader() {
   const token = await auth.currentUser.getIdToken();
@@ -15,28 +14,7 @@ export async function getCategoriesFromApi() {
     throw new Error("No se pudieron obtener las categorías");
   }
 
-  const data = await response.json();
-
-  const categories = await Promise.all(
-    data.map(async (categoria) => {
-      const countResponse = await fetch(
-        `${OPENTDB_URL}/api_count.php?category=${categoria.id}`,
-      );
-
-      if (!countResponse.ok) {
-        throw new Error("No se pudo obtener la cantidad de preguntas");
-      }
-
-      const countData = await countResponse.json();
-
-      return {
-        ...categoria,
-        totalPreguntas: countData.category_question_count.total_question_count,
-      };
-    }),
-  );
-
-  return categories;
+  return response.json();
 }
 
 export async function createCategory(name) {
