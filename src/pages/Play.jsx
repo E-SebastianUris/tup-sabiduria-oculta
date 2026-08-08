@@ -3,6 +3,7 @@ import { ProgressSpinner } from "primereact/progressspinner";
 import { useTranslation } from "react-i18next";
 import ReactGA from "react-ga4";
 import categoriesInfo from "../data/categoriesInfo";
+import { getCategoriesStore } from "../services/categoriesStore";
 
 function Play() {
   const { t } = useTranslation();
@@ -15,41 +16,13 @@ function Play() {
   useEffect(() => {
     const loadCategories = async () => {
       try {
-        const savedCategories = localStorage.getItem("categories");
+        const storeCategories = await getCategoriesStore();
 
-        if (savedCategories) {
-          setCategories(JSON.parse(savedCategories));
-          setLoading(false);
-          return;
-        }
-
-        const response = await fetch("https://opentdb.com/api_category.php");
-
-        const data = await response.json();
-
-        const categoriesWithCount = await Promise.all(
-          data.trivia_categories.map(async (category) => {
-            const countResponse = await fetch(
-              `https://opentdb.com/api_count.php?category=${category.id}`,
-            );
-
-            const countData = await countResponse.json();
-
-            return {
-              ...category,
-              totalQuestions:
-                countData.category_question_count.total_question_count,
-            };
-          }),
-        );
-
-        setCategories(categoriesWithCount);
+        setCategories(storeCategories);
 
         ReactGA.event("feature_open", {
           feature: "Play",
         });
-
-        localStorage.setItem("categories", JSON.stringify(categoriesWithCount));
       } catch (error) {
         console.error("Error loading categories:", error);
       } finally {
@@ -83,7 +56,7 @@ function Play() {
   }
 
   if (sortBy === "questions") {
-    sortedCategories.sort((a, b) => b.totalQuestions - a.totalQuestions);
+    sortedCategories.sort((a, b) => b.totalPreguntas - a.totalPreguntas);
   }
 
   if (loading) {
@@ -148,7 +121,7 @@ function Play() {
             </p>
 
             <p className="question-count">
-              {category.totalQuestions} questions
+              {category.totalPreguntas} questions
             </p>
 
             <button
