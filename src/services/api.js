@@ -8,7 +8,11 @@ async function getAuthHeader() {
 }
 
 export async function getCategoriesFromApi() {
-  const response = await fetch(`${API_URL}/categories`);
+  const authHeader = await getAuthHeader();
+
+  const response = await fetch(`${API_URL}/categories`, {
+    headers: authHeader,
+  });
 
   if (!response.ok) {
     throw new Error("No se pudieron obtener las categorías");
